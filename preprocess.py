@@ -64,14 +64,14 @@ model_dataset = (
         categorical_encoder.transform(data),
         columns=categorical_encoder.get_feature_names_out(),
     )
-    .drop(columns=['timestamp', 'title', 'Zipcode'])
+    .drop(columns=['title', 'Zipcode'])
 )
 
-# Split into train and test by user
-train_users, test_users = train_test_split(model_dataset['userId'].unique(), test_size=0.2, random_state=42)
+# Split into train and test, taking the last 2 ratings per user as test
+test_indices = model_dataset.sort_values('timestamp').groupby('userId').tail(2).index
 
-train = model_dataset[model_dataset['userId'].isin(train_users)]
-test = model_dataset[model_dataset['userId'].isin(test_users)]
+train = model_dataset.drop(index=test_indices)
+test = model_dataset.loc[test_indices, :]
 
 features_train = train.drop(columns=['rating'])
 labels_train = train['rating']
