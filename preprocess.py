@@ -36,7 +36,7 @@ data['Occupation'] = data['Occupation'].replace(utils.load_occupation_lookup())
 def encode_genres(data: pd.DataFrame) -> pd.DataFrame:
     genres = data['genres'].apply(lambda x: x.split('|')).explode().drop_duplicates()
     genre_encoder = LabelEncoder().fit(genres)
-    return data['genres'].apply(lambda x: genre_encoder.transform(x.split('|')))[:, np.newaxis]
+    return data['genres'].apply(lambda x: genre_encoder.transform(x.split('|')))[:, np.newaxis] # type: ignore[no-any-return]
 
 def decode_genres(data: pd.DataFrame) -> pd.DataFrame:
     # TODO: Implement
@@ -82,8 +82,8 @@ labels_test = test['rating']
 MODEL_DATA_FOLDER = pathlib.Path('data/modelling')
 MODEL_DATA_FOLDER.mkdir(exist_ok=True)
 
-for data_split, data in zip(
+for data_split, dataset in zip(
     ['train', 'test'], [(features_train, labels_train), (features_test, labels_test)]
 ):
     with open(MODEL_DATA_FOLDER / f'{data_split}.pkl', 'wb') as f:
-        pickle.dump(data, f)
+        pickle.dump(dataset, f)
